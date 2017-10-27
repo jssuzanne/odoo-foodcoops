@@ -30,14 +30,27 @@ install:
   - pip install coveralls
   - pip install flake8
   - python bootstrap.py
-  - bin/buildout -c buildout.cfg
+  - bin/buildout -c buildout_lalouve.cfg
+  - bin/buildout -c buildout_lacagette.cfg
+  - bin/buildout -c buildout_superquinquin.cfg
+
+script:
+  - flake8 louve_addons/
+  - bin/buildout -c buildout_lalouve.cfg -o
   - createdb lalouve_test
   - psql lalouve_test -c " CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;"
   - bin/upgrade_lalouve -d lalouve_test --init-load-demo-data
-
-script:
   - bin/nosetests -d lalouve_test -- -v -s intercoop_addons/ louve_addons/ --with-coverage
-  - flake8 louve_addons/
+  - bin/buildout -c buildout_lacagette.cfg -o
+  - createdb lacagette_test
+  - psql lacagette_test -c " CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;"
+  - bin/upgrade_lacagette -d lacagette_test --init-load-demo-data
+  - bin/nosetests -d lacagette_test -- -v -s intercoop_addons/ lacagette_addons/ --with-coverage
+  - bin/buildout -c buildout_superquinquin.cfg -o
+  - createdb superquinquin_test
+  - psql superquinquin_test -c " CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;"
+  - bin/upgrade_superquinquin -d superquinquin_test --init-load-demo-data
+  - bin/nosetests -d superquinquin_test -- -v -s intercoop_addons/ superquinquin_addons/ --with-coverage
 
 after_success:
   - coveralls
